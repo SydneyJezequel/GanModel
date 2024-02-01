@@ -16,7 +16,7 @@ from PIL import Image
 # *************************************** Classe du Générateur *************************************** #
 class Generator(nn.Module):
     # Constructeur : Méthode d'initialisation du Générateur :
-    def __init__(self, z_dim=64, d_dim=16):
+    def __init__(self, z_dim, d_dim=16):
         super(Generator, self).__init__()
 
         # Vecteur de bruit :
@@ -71,6 +71,7 @@ class Generator(nn.Module):
 
     # Définit le passage avant du Générateur :
     def forward(self, noise):  # self : Couche de Neurones / noise : Tenseur de bruits.
+        print("self.z_dim : ", self.z_dim)
         # Remodèle le Tenseur de bruits en entrée et le passe à travers les couches définies (nn.Sequential()
         x = noise.view(len(noise), self.z_dim, 1, 1)  # 128 (taille dernière couche) x 200 (canaux première couche) x 1 x 1
         return self.gen(x)  # Renvoie l'image générées.

@@ -1,18 +1,14 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from GanGenerateService import generate_gan_pictures
-from GanTrainService import perform_gan_model_training
+import GanGenerateService
+import GanTrainService
 
 
 
 
 
 
-
-
-
-
-# ******************************************** Commande pour démarrer l'application ******************************************** #
+""" **************************************** Commande pour démarrer l'application **************************************** """
 
 # uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8008
 # uvicorn GanController:app --reload --workers 1 --host 0.0.0.0 --port 8009
@@ -22,8 +18,7 @@ from GanTrainService import perform_gan_model_training
 
 
 
-
-# **************************************************** Chargement de l'Api ***************************************************** #
+""" **************************************** Chargement de l'Api **************************************** """
 
 app = FastAPI()
 
@@ -32,8 +27,7 @@ app = FastAPI()
 
 
 
-
-# ******************************************************** Api de test ********************************************************* #
+""" **************************************** Api de test **************************************** """
 
 @app.get("/ping")
 async def pong():
@@ -44,20 +38,22 @@ async def pong():
 
 
 
-
-# ******************************************************** Exécution du modèle GAN ********************************************************* #
+""" **************************************** Exécution du modèle GAN **************************************** """
 
 @app.get("/generate-faces")
 async def generate_gan_pictures_controller():
-    generate_gan_pictures()
+    generate_service_instance = GanGenerateService.GenerateService()
+    generate_service_instance.load_model('latest')
+    generate_service_instance.generate_gan_pictures()
 
 
 
 
-# ******************************************************** Entrainement du modèle GAN ********************************************************* #
 
 
-# Classe des Hyperamètres :
+""" **************************************** Entrainement du modèle GAN **************************************** """
+
+""" Classe des Hyperamètres """
 class Hyperparameters(BaseModel):
     n_epochs : int
     batch_size : int
@@ -68,7 +64,7 @@ class Hyperparameters(BaseModel):
     save_step : int
 
 
-# Controller qui lance l'entrainement du modèle Gan :
+""" Controller qui lance l'entrainement du modèle Gan """
 @app.post("/train-gan-model", status_code=200)
 def train_gan_model(payload: Hyperparameters):
 
@@ -82,10 +78,7 @@ def train_gan_model(payload: Hyperparameters):
     print(payload.save_step)
     print("**************** Test Controller *****************")
 
-    # Récupération des variables globales de config.py :
-    # global lr, z_dim, device
-
-    # Récupération des valeurs envoyées par l'utilisateur :
+    """ Récupération des valeurs envoyées par l'utilisateur """
     n_epochs = payload.n_epochs
     batch_size = payload.batch_size
     lr = payload.lr
@@ -94,12 +87,14 @@ def train_gan_model(payload: Hyperparameters):
     show_step = payload.show_step
     save_step = payload.save_step
 
-    # Valeur définies par défaut :
+    """ Valeur définies par défaut """
     cur_step = 0
     crit_cycles = 5
     gen_losses = []
     crit_losses = []
-    perform_gan_model_training(n_epochs, batch_size, lr, z_dim, device, cur_step, crit_cycles, gen_losses, crit_losses, show_step, save_step)
 
+    """ Chargement du service d'entrainement """
+    gan_train_service_instance = GanTrainService.GrainTrainService()
+    gan_train_service_instance.perform_gan_model_training(n_epochs, batch_size, lr, z_dim, device, cur_step, crit_cycles, gen_losses, crit_losses, show_step, save_step)
 
 
