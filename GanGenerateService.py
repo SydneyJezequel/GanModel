@@ -8,7 +8,7 @@ from GanBO import Generator
 
 
 
-""" Classe qui gènère des images """
+""" Service qui gènère des images """
 class GenerateService:
 
 
