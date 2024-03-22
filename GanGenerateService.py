@@ -8,12 +8,15 @@ from GanBO import Generator
 
 
 
-""" Service qui gènère des images """
 class GenerateService:
+    """ Service qui gènère des images """
 
 
 
-    """ ************************ Attributs de classe ************************ """
+
+
+    """ ************************ Attributs ************************ """
+
     batch_size = 128
     z_dim = 200
     device = 'cpu'
@@ -24,10 +27,13 @@ class GenerateService:
 
 
 
+
     """ ************************ Constructeur ************************ """
+
     _instance = None
 
     def __new__(cls):
+        """ Constructeur """
         if cls._instance is None:
             cls._instance = super(GenerateService, cls).__new__(cls)
             # Initialisation des attributs de classe ici
@@ -38,6 +44,7 @@ class GenerateService:
             cls._instance._weights_path = 'config/G-latest.pkl'
             cls._instance._gen = Generator(cls._instance._z_dim).to(cls._instance._device)
         return cls._instance
+
 
 
 
@@ -93,34 +100,34 @@ class GenerateService:
 
 
 
-
     """ ************************ Méthodes ************************ """
 
-    """ Méthode pour générer des images """
     def generate_gan_pictures(self):
+        """ Méthode pour générer des images """
         noise = self.gen_noise(self.batch_size, self.z_dim)
         self.gen.eval()
         fake = self.gen(noise)
         self.show(fake)
 
 
-    """ Méthode qui Génère le bruit aléatoire à partir d'une distribution normale """
+
     def gen_noise(self, num, z_dim, device='cpu'):  # num : Nombre d'exemple à générer. / Dimension de l'espace latent / dispositif ou placer le Tenseur de bruit.
+        """ Méthode qui Génère le bruit aléatoire à partir d'une distribution normale """
         return torch.randn(num, z_dim, device=device)  # 128 x 200     # torch.randn() : génère des nombres aléatoires .
 
 
-    """ Méthode pour afficher une image """
+
     def show(self, tensor, num=25, wandbactive=0, name=''):
-      data = tensor.detach().cpu()
-      grid = make_grid(data[:num], nrow=5).permute(1,2,0)
-      plt.imshow(grid.clip(0,1))
-      plt.show()
+        """ Méthode pour afficher une image """
+        data = tensor.detach().cpu()
+        grid = make_grid(data[:num], nrow=5).permute(1,2,0)
+        plt.imshow(grid.clip(0,1))
+        plt.show()
 
 
-    """ Méthode qui Initialise le Générateur et charge les paramètres du Modèle """
+
     def load_model(self, name):
+        """ Méthode qui initialise le Générateur et charge les paramètres du Modèle """
         checkpoint = torch.load(f"{self.root_path}G-{name}.pkl")
         self.gen.load_state_dict(checkpoint['model_state_dict'])
-
-
 

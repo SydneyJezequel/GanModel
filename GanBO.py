@@ -1,24 +1,22 @@
-# *************************************** Librairies *************************************** #
 import torch, torchvision, os, PIL
 from torch import nn
 from torch.utils.data import Dataset
 import numpy as np
-from PIL import Image
+from pydantic import BaseModel
 
 
 
 
 
 
-
-
-
-# *************************************** Classe du Générateur *************************************** #
 class Generator(nn.Module):
-    # Constructeur : Méthode d'initialisation du Générateur :
-    def __init__(self, z_dim, d_dim=16):
-        super(Generator, self).__init__()
+    """ Classe du Générateur """
 
+
+
+    def __init__(self, z_dim, d_dim=16):
+        """ Constructeur """
+        super(Generator, self).__init__()
         # Vecteur de bruit :
         self.z_dim = z_dim
 
@@ -69,8 +67,10 @@ class Generator(nn.Module):
             nn.Tanh()  ### Produit un résultat entre -1 et 1 / Génère l'image.
         )
 
-    # Définit le passage avant du Générateur :
+
+
     def forward(self, noise):  # self : Couche de Neurones / noise : Tenseur de bruits.
+        """ Méthode qui envoie des données aléatoires dans le Générateur """
         print("self.z_dim : ", self.z_dim)
         # Remodèle le Tenseur de bruits en entrée et le passe à travers les couches définies (nn.Sequential()
         x = noise.view(len(noise), self.z_dim, 1, 1)  # 128 (taille dernière couche) x 200 (canaux première couche) x 1 x 1
@@ -81,13 +81,13 @@ class Generator(nn.Module):
 
 
 
-
-
-
-# *************************************** Classe du Critique *************************************** #
 class Critic(nn.Module):
-    # Constructeur :  Méthode d'initialisation du Générateur :
+    """ Classe du Critique """
+
+
+
     def __init__(self, d_dim=16):
+        """ Constructeur """
         super(Critic, self).__init__()
 
         # Couches de neurones :
@@ -130,8 +130,10 @@ class Critic(nn.Module):
             nn.Conv2d(d_dim * 16, 1, 4, 1, 0),  ## (n+2*pad-ks)//stride +1 = (4+2*0-4)// 1+1 = 1X1 (ch: 256, 1)
         )
 
-    # Applique le modèle discriminatoire à une image en entrée :
+
+
     def forward(self, image):
+        """ Méthode qui envoie des données aléatoires dans le Critic """
         # image: 128 x 3 x 128 x 128
         crit_pred = self.crit(image)  # 128 x 1 x 1 x 1     /    Passe l'image dans la couche de neurones pour générer une prédiction.
         return crit_pred.view(len(crit_pred), -1)  ## 128 x 1   /    Redimensionne le tensor crit_pred en une taille : batch_size, 1.
@@ -142,13 +144,13 @@ class Critic(nn.Module):
 
 
 
+class DataSet(Dataset):
+    """ Classe du Dataset """
 
 
-# *************************************** Classe du DataSet *************************************** #
-class DataSet(Dataset):                 # Déclare une classe DataSet qui hérite de la classe Dataset de Pytorch.
 
-    # Constructeur de classe :
     def __init__(self, path, size=128, lim=10000):
+       """ Constructeur """
        self.sizes = [size, size]   # Initialise une liste size qui représente les dimensions souhaitées pour redimensionner les images (128x128).
        items, labels = [], []    # Initialise deux listes vides.
        # Chargement des données du fichier :
@@ -159,12 +161,16 @@ class DataSet(Dataset):                 # Déclare une classe DataSet qui hérit
        self.items = items
        self.labels = labels
 
-    # Méthode qui renvoie la longueur de l'ensemble de données :
+
+
     def __len__(self):
+        """ Méthode qui renvoie la longueur de l'ensemble de données """
         return len(self.items)
 
-    # Méthode qui renvoie un élément de l'ensemble de données à l'index idx.:
+
+
     def __getitem__(self, idx):
+        """ Méthode qui renvoie un élément de l'ensemble de données à l'index idx """
         data = PIL.Image.open(self.items[idx]).convert('RGB') # (178, 218)  /  Ouvre l'image à l'index spécifié avec PIL et la convertit en mode RGB.
         # Redimensionne l'image à l'aide de la transformation Resize de torchvision et la convertit en tableau NumPy pour faire des opérations dessus :
         data = np.asarray(torchvision.transforms.Resize(self.sizes)(data)) # 128 x 128 x 3
@@ -181,5 +187,13 @@ class DataSet(Dataset):                 # Déclare une classe DataSet qui hérit
 
 
 
-
+class Hyperparameters(BaseModel):
+    """ Classe des Hyperamètres """
+    n_epochs : int
+    batch_size : int
+    lr : float
+    z_dim : int
+    device : str
+    show_step : int
+    save_step : int
 
