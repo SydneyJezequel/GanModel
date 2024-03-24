@@ -11,3 +11,6 @@ Le Front et le Backend pour manipuler ce modèle sont mis à disposition dans le
 - https://github.com/SydneyJezequel/applicationIABackend
 - https://github.com/SydneyJezequel/applicationIAFrontend
 
+Commande pour lancer le projet :
+uvicorn GanController:app --reload --workers 1 --host 0.0.0.0 --port 8010
+
