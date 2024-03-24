@@ -1,7 +1,7 @@
 import torch
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
-from GanBO import Generator
+from BO.Generator import Generator
 
 
 
@@ -20,8 +20,8 @@ class GenerateService:
     batch_size = 128
     z_dim = 200
     device = 'cpu'
-    root_path = './config/'
-    weights_path = 'config/G-latest.pkl'
+    root_path = '../config/'
+    weights_path = '../config/G-latest.pkl'
     gen = Generator(z_dim).to(device)
 
 
@@ -40,8 +40,8 @@ class GenerateService:
             cls._instance._batch_size = 128
             cls._instance._z_dim = 200
             cls._instance._device = 'cpu'
-            cls._instance._root_path = './config/'
-            cls._instance._weights_path = 'config/G-latest.pkl'
+            cls._instance._root_path = '../config/'
+            cls._instance._weights_path = '../config/G-latest.pkl'
             cls._instance._gen = Generator(cls._instance._z_dim).to(cls._instance._device)
         return cls._instance
 
@@ -128,6 +128,6 @@ class GenerateService:
 
     def load_model(self, name):
         """ Méthode qui initialise le Générateur et charge les paramètres du Modèle """
-        checkpoint = torch.load(f"{self.root_path}G-{name}.pkl")
+        checkpoint = torch.load(f"./config/G-{name}.pkl")
         self.gen.load_state_dict(checkpoint['model_state_dict'])
 

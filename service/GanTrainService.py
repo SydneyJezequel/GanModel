@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from tqdm.asyncio import tqdm
 import zipfile
 import wandb
-from GanBO import Generator, Critic, DataSet
+from BO.Dataset import DataSet
+from BO.Generator import Generator
+from BO.Critic import Critic
 import os
 from torch.utils.data import DataLoader
 import shutil
@@ -23,7 +25,7 @@ class GrainTrainService :
 
     """ ************************ Attributs ************************ """
 
-    root_path='./data/'
+    root_path= '../data/'
     wandbact = 1
     lr = 1e-4
     z_dim = 100
@@ -303,14 +305,14 @@ class GrainTrainService :
 
     def dataset_init(self, batch_size):
         """ Méthode qui initialise le dataset """
-        path = 'data/celeba'
+        path = './data/celeba'
         download_path = f'{path}/archive.zip'
         if not os.path.exists(path):
             os.makedirs(path)
         with zipfile.ZipFile(download_path, 'r') as ziphandler:
             ziphandler.extractall(path)
         # DataSet :
-        data_path = 'data/celeba/img_align_celeba'  # Chemin du fichier.
+        data_path = '../data/celeba/img_align_celeba'  # Chemin du fichier.
         # Création d'une instance de la classe DataSet :
         ds = DataSet(data_path, size=128, lim=10000)
         # size-128 : taille réduite de l'image. / lim=10000 : taille réduite de l'image.

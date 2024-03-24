@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-import GanGenerateService
-import GanTrainService
-from GanBO import Hyperparameters
+from service import GanGenerateService, GanTrainService
+from BO.Hyperparameters import Hyperparameters
 
 
 
