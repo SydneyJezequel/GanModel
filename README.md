@@ -11,7 +11,3 @@ Le Front et le Backend pour manipuler ce modèle sont mis à disposition dans le
 - https://github.com/SydneyJezequel/applicationIABackend
 - https://github.com/SydneyJezequel/applicationIAFrontend
 
-
-L'implémentation de ces fonctionnalités est basé un tutoriel Udemy disponible sur Udemy au lien suivant :
-https://www.udemy.com/course/generative-creative-ai-from-gans-to-clip-with-python-and-pytorch
-
