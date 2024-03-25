@@ -1,15 +1,16 @@
 import torch
-from torchvision.utils import make_grid
-import matplotlib.pyplot as plt
-from tqdm.asyncio import tqdm
 import zipfile
+import config
 import wandb
+import matplotlib.pyplot as plt
+import os
+import shutil
+from torchvision.utils import make_grid
+from tqdm.asyncio import tqdm
 from BO.Dataset import DataSet
 from BO.Generator import Generator
 from BO.Critic import Critic
-import os
 from torch.utils.data import DataLoader
-import shutil
 
 
 
@@ -25,11 +26,11 @@ class GrainTrainService :
 
     """ ************************ Attributs ************************ """
 
-    root_path= '../data/'
+    root_path= config.data_root_path
     wandbact = 1
     lr = 1e-4
     z_dim = 100
-    device = 'cpu'
+    device = config.default_device
 
     # Générateur et Critic :
     gen = Generator(z_dim).to(device)
@@ -40,9 +41,9 @@ class GrainTrainService :
     crit_opt = torch.optim.Adam(crit.parameters(), lr=lr, betas=(0.5, 0.9))
 
     # Chemins des fichiers de paramètres des Générateur et Critic :
-    fichier_parametres_generateur = "./data/G-latest.pkl"
-    fichier_parametres_critic = "./data/C-latest.pkl"
-    dossier_destination = "/Users/sjezequel/Desktop"
+    generator_parameters_file = config.generator_parameters_file
+    critic_parameters_file = config.critic_parameters_file
+    destination_folder = config.destination_folder
 
 
 
@@ -52,7 +53,7 @@ class GrainTrainService :
 
     _instance = None
 
-    def __new__(cls, z_dim=200, device='cpu', lr=0.0002, root_path='./data/', wandbact=1):
+    def __new__(cls, z_dim=200, device=config.default_device, lr=0.0002, root_path='./data/', wandbact=1):
         """ Constructeur """
         if cls._instance is None:
             cls._instance = super(GrainTrainService, cls).__new__(cls)
@@ -172,7 +173,7 @@ class GrainTrainService :
                 gen_losses += [gen_loss.item()]
 
                 """ 3- Statistiques """
-                wandb.login(key='74a98cfd8dce6ac68b261d2789b794207700b868')
+                wandb.login(key=config.wandb_key)
                 experiment_name = wandb.util.generate_id()
                 wandb.init(
                     project="wgan",
@@ -188,18 +189,15 @@ class GrainTrainService :
                 if (self.wandbact == 1):
                     wandb.log({'Epoch': epoch, 'Step': cur_step, 'Critic loss': mean_crit_loss,
                                'Gen loss': gen_loss})  # Si oui : Afficher les logs.
-
                 # Sauvegarde des fichiers de paramètres :
                 if(cur_step % show_step == 0 and cur_step > 0): # A chaque étape qui correspond à ces conditions.
                     print("Saving checkpoint: ", cur_step, save_step)  # Affichage de l'étape sauvegardé.
-                    self.save_checkpoint("latest", epoch)
-                    self.deplacer_fichier(self.fichier_parametres_generateur, self.dossier_destination)
-                    self.deplacer_fichier(self.fichier_parametres_critic, self.dossier_destination)
-
+                    self.save_checkpoint(config.save_checkpoint_name, epoch)
+                    self.deplacer_fichier(self.generator_parameters_file, self.destination_folder)
+                    self.deplacer_fichier(self.critic_parameters_file, self.destination_folder)
                 if (cur_step % show_step == 0 and cur_step > 0):
                     self.show(fake, wandbactive=1, name='fake')  # Affiche les images générées
                     self.show(real, wandbactive=1, name='real')  # Affiche les images réelles.
-
                     # Calcul de la moyenne des pertes du générateur sur les dernières show_step itérations :
                     gen_mean = sum(gen_losses[-show_step:]) / show_step
                     # Calcul de la moyenne des pertes du critique sur les dernières show_step itérations :
@@ -305,14 +303,14 @@ class GrainTrainService :
 
     def dataset_init(self, batch_size):
         """ Méthode qui initialise le dataset """
-        path = './data/celeba'
-        download_path = f'{path}/archive.zip'
+        path = config.dataset_celeba_path
+        download_path = config.dataset_download_path
         if not os.path.exists(path):
             os.makedirs(path)
         with zipfile.ZipFile(download_path, 'r') as ziphandler:
             ziphandler.extractall(path)
         # DataSet :
-        data_path = '../data/celeba/img_align_celeba'  # Chemin du fichier.
+        data_path = config.dataset_celeba_img_path  # Chemin du fichier.
         # Création d'une instance de la classe DataSet :
         ds = DataSet(data_path, size=128, lim=10000)
         # size-128 : taille réduite de l'image. / lim=10000 : taille réduite de l'image.

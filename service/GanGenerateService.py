@@ -1,6 +1,7 @@
 import torch
-from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
+import config
+from torchvision.utils import make_grid
 from BO.Generator import Generator
 
 
@@ -19,9 +20,9 @@ class GenerateService:
 
     batch_size = 128
     z_dim = 200
-    device = 'cpu'
-    root_path = '../config/'
-    weights_path = '../config/G-latest.pkl'
+    device = config.default_device
+    root_path = config.root_path
+    weights_path = config.weights_path
     gen = Generator(z_dim).to(device)
 
 
@@ -39,9 +40,9 @@ class GenerateService:
             # Initialisation des attributs de classe ici
             cls._instance._batch_size = 128
             cls._instance._z_dim = 200
-            cls._instance._device = 'cpu'
-            cls._instance._root_path = '../config/'
-            cls._instance._weights_path = '../config/G-latest.pkl'
+            cls._instance._device = config.default_device
+            cls._instance._root_path = config.root_path
+            cls._instance._weights_path = config.weights_path
             cls._instance._gen = Generator(cls._instance._z_dim).to(cls._instance._device)
         return cls._instance
 
@@ -111,7 +112,7 @@ class GenerateService:
 
 
 
-    def gen_noise(self, num, z_dim, device='cpu'):  # num : Nombre d'exemple à générer. / Dimension de l'espace latent / dispositif ou placer le Tenseur de bruit.
+    def gen_noise(self, num, z_dim, device=config.default_device):  # num : Nombre d'exemple à générer. / Dimension de l'espace latent / dispositif ou placer le Tenseur de bruit.
         """ Méthode qui Génère le bruit aléatoire à partir d'une distribution normale """
         return torch.randn(num, z_dim, device=device)  # 128 x 200     # torch.randn() : génère des nombres aléatoires .
 
@@ -126,8 +127,8 @@ class GenerateService:
 
 
 
-    def load_model(self, name):
+    def load_model(self):
         """ Méthode qui initialise le Générateur et charge les paramètres du Modèle """
-        checkpoint = torch.load(f"./config/G-{name}.pkl")
+        checkpoint = torch.load(config.model_file)
         self.gen.load_state_dict(checkpoint['model_state_dict'])
 

@@ -9,7 +9,6 @@ from BO.Hyperparameters import Hyperparameters
 
 """ **************************************** Commande pour démarrer l'application **************************************** """
 
-# uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8008
 # uvicorn GanController:app --reload --workers 1 --host 0.0.0.0 --port 8010
 
 
@@ -44,7 +43,7 @@ async def pong():
 async def generate_gan_pictures_controller():
     """ Exécution du modèle GAN """
     generate_service_instance = GanGenerateService.GenerateService()
-    generate_service_instance.load_model('latest')
+    generate_service_instance.load_model()
     generate_service_instance.generate_gan_pictures()
 
 
